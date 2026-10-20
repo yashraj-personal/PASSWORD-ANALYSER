@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuard - Advanced Password Security Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #00ff41;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ff41;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 65, 0.3),
+                inset 0 0 30px rgba(0, 255, 65, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ff41, transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-50%) translateX(-100px); }
+            100% { transform: translateX(-50%) translateX(100px); }
+        }
+
+        .header h1 {
+            color: #00ff41;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .header .subtitle {
+            color: #00ff88;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .header .tagline {
+            color: #888;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .security-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .password-input-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 20px 25px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            font-size: 18px;
+            font-family: 'Consolas', monospace;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff41;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .password-input::placeholder {
+            color: #555;
+            font-style: italic;
+        }
+
+        .toggle-visibility {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #00ff41;
+            transition: all 0.3s ease;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .toggle-visibility:hover {
+            color: #00ff88;
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        .strength-meter {
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        .strength-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .strength-text {
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #00ff41;
+        }
+
+        .strength-score {
+            color: #888;
+            font-size: 1.1em;
+            font-family: 'Consolas', monospace;
+        }
+
+        .meter-bar {
+            height: 12px;
+            background: #222;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #333;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: all 0.8s ease;
+            width: 0%;
+            position: relative;
+        }
+
+        .meter-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .meter-fill.very-weak { 
+            background: linear-gradient(90deg, #ff4757, #ff6b7a); 
+            width: 20%; 
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.5);
+        }
+        .meter-fill.weak { 
+            background: linear-gradient(90deg, #ffa502, #ffb733); 
+            width: 40%; 
+            box-shadow: 0 0 20px rgba(255, 165, 2, 0.5);
+        }
+        .meter-fill.moderate { 
+            background: linear-gradient(90deg, #ffd32a, #ffdd59); 
+            width: 60%; 
+            box-shadow: 0 0 20px rgba(255, 211, 42, 0.5);
+        }
+        .meter-fill.strong { 
+            background: linear-gradient(90deg, #2ed573, #7bed9f); 
+            width: 80%; 
+            box-shadow: 0 0 20px rgba(46, 213, 115, 0.5);
+        }
+        .meter-fill.very-strong { 
+            background: linear-gradient(90deg, #00ff41, #00ff88); 
+            width: 100%; 
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .analysis-card {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analysis-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #333;
+        }
+
+        .analysis-card.passed::before {
+            background: linear-gradient(90deg, #00ff41, #00ff88);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .analysis-card.failed::before {
+            background: linear-gradient(90deg, #ff4757, #ff6b7a);
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.2);
+        }
+
+        .analysis-card h3 {
+            color: #00ff41;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .analysis-card .icon {
+            font-size: 1.4em;
+        }
+
+        .analysis-card .score {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            font-family: 'Consolas', monospace;
+        }
+
+        .analysis-card .details {
+            color: #ccc;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .suggestions {
+            background: rgba(0, 50, 100, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #0066cc;
+            border-left: 4px solid #00aaff;
+        }
+
+        .suggestions h3 {
+            color: #00aaff;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestions ul {
+            list-style: none;
+        }
+
+        .suggestions li {
+            color: #ccc;
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .suggestions li:before {
+            content: "⚡";
+            position: absolute;
+            left: 0;
+            color: #00aaff;
+            font-size: 1.2em;
+        }
+
+        .character-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .char-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .char-type .check {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .char-type .cross {
+            color: #ff4757;
+            font-weight: bold;
+        }
+
+        .examples {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #333;
+        }
+
+        .examples h3 {
+            color: #00ff41;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .example-passwords {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .example-password {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .example-password:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: #00ff41;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .example-password .password {
+            font-family: 'Consolas', monospace;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #00ff41;
+            font-size: 1.1em;
+        }
+
+        .example-password .strength {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .cyber-footer {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .cyber-footer a {
+            color: #00ff41;
+            text-decoration: none;
+        }
+
+        .cyber-footer a:hover {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .character-types {
+                grid-template-columns: 1fr;
+            }
+
+            .example-passwords {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Terminal-style blinking cursor */
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Matrix-style rain effect */
+        .matrix-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .matrix-column {
+            position: absolute;
+            top: -100%;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            color: #00ff41;
+            animation: matrixFall linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes matrixFall {
+            0% { top: -100%; opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Terminal typing effect */
+        .typing-effect {
+            overflow: hidden;
+            border-right: 2px solid #00ff41;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #00ff41; }
+        }
+
+        /* Python snake animation */
+        .python-snake {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            animation: snakeMove 4s ease-in-out infinite;
+        }
+
+        @keyframes snakeMove {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(20px) rotate(5deg); }
+            50% { transform: translateX(0) rotate(0deg); }
+            75% { transform: translateX(-20px) rotate(-5deg); }
+        }
+
+        /* Hacker terminal window */
+        .terminal-window {
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ff41;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Consolas', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 5px;
+            margin-right: 15px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca3f; }
+
+        .terminal-title {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .terminal-line {
+            color: #00ff41;
+            margin: 5px 0;
+            animation: terminalTyping 0.5s ease-in-out;
+        }
+
+        .terminal-line::before {
+            content: ">>> ";
+            color: #00ff88;
+        }
+
+        @keyframes terminalTyping {
+            0% { opacity: 0; transform: translateX(-10px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 0.5s infinite;
+            color: #ff0000;
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-2 0.5s infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(-2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(-2px, -2px); }
+        }
+
+        /* Binary rain effect */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .binary-digit {
+            position: absolute;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: #00ff41;
+            opacity: 0.3;
+            animation: binaryFall linear infinite;
+        }
+
+        @keyframes binaryFall {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* Code compilation effect */
+        .compiling {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .compiling::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.3), transparent);
+            animation: compile 2s infinite;
+        }
+
+        @keyframes compile {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Hacker loading animation */
+        .hacker-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-top: 2px solid #00ff41;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Python code syntax highlighting */
+        .python-code {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+
+        .python-keyword { color: #ff6b9d; }
+        .python-string { color: #00ff88; }
+        .python-comment { color: #666; }
+        .python-function { color: #00aaff; }
+
+        /* Enhanced password input with terminal feel */
+        .password-input {
+            position: relative;
+        }
+
+        .password-input::before {
+            content: "Enter password: ";
+            position: absolute;
+            left: -120px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00ff41;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        /* Security scan animation */
+        .security-scan {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .security-scan::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.2), transparent);
+            animation: securityScan 3s infinite;
+        }
+
+        @keyframes securityScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* Developer Profile Styles */
+        .developer-profile {
+            margin: 30px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .profile-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff41;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 65, 0.3);
+            border-color: #00ff88;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+            animation: profileScan 3s infinite;
+        }
+
+        @keyframes profileScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .profile-icon {
+            font-size: 3em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .profile-info h3 {
+            color: #00ff41;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .profile-info p {
+            color: #00ff88;
+            font-size: 1em;
+            margin: 0;
+        }
+
+        .profile-links {
+            margin-top: 20px;
+        }
+
+        .linkedin-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(45deg, #0077b5, #00a0dc);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .linkedin-btn:hover {
+            background: linear-gradient(45deg, #00a0dc, #0077b5);
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 160, 220, 0.4);
+            border-color: #00ff41;
+        }
+
+        .linkedin-btn span {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background effects -->
+    <div class="particles" id="particles"></div>
+    <div class="matrix-rain" id="matrixRain"></div>
+    <div class="binary-rain" id="binaryRain"></div>
+
+    <!-- Python snake animation -->
+    <div class="python-snake">🐍</div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="glitch" data-text="CyberGuard">CyberGuard</h1>
+            <div class="subtitle typing-effect">Advanced Password Security Analyzer</div>
+            <div class="tagline">Developed by <a href="https://www.linkedin.com/in/parag-patel-9593742a7" target="_blank" style="color: #00ff41; text-decoration: none;">Parag Patel</a></div>
+            <div class="security-badge">🔒 SECURITY CERTIFIED</div>
+        </div>
+
+        <!-- Developer Profile Section -->
+        <div class="developer-profile">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-icon">👨‍💻</div>
+                    <div class="profile-info">
+                        <h3>Parag Patel</h3>
+                        <p>Cyber Security Student & Python Developer</p>
+                    </div>
+                </div>
+                <div class="profile-links">
+                    <a href="https://www.linkedin.com/in/parag-patel-9593742a7" target="_blank" class="linkedin-btn">
+                        <span>🔗</span> LinkedIn Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="password-input-container">
+            <input type="password" id="passwordInput" class="password-input" placeholder="Enter password for security analysis...">
+            <button type="button" class="toggle-visibility" onclick="togglePasswordVisibility()">👁️</button>
+        </div>
+
+        <div class="strength-meter">
+            <div class="strength-label">
+                <span class="strength-text" id="strengthText">Enter password for analysis</span>
+                <span class="strength-score" id="strengthScore">0/100</span>
+            </div>
+            <div class="meter-bar">
+                <div class="meter-fill" id="meterFill"></div>
+            </div>
+        </div>
+
+        <div class="analysis-grid" id="analysisGrid">
+            <!-- Analysis cards will be populated by JavaScript -->
+        </div>
+
+        <div class="suggestions" id="suggestions" style="display: none;">
+            <h3>🛡️ Security Recommendations</h3>
+            <ul id="suggestionsList"></ul>
+        </div>
+
+        <div class="examples">
+            <h3>🔍 Test Security Examples</h3>
+            <div class="example-passwords">
+                <div class="example-password" onclick="testPassword('password')">
+                    <div class="password">password</div>
+                    <div class="strength">CRITICAL RISK</div>
+                </div>
+                <div class="example-password" onclick="testPassword('Password123')">
+                    <div class="password">Password123</div>
+                    <div class="strength">MODERATE RISK</div>
+                </div>
+                <div class="example-password" onclick="testPassword('MyP@ssw0rd!')">
+                    <div class="password">MyP@ssw0rd!</div>
+                    <div class="strength">SECURE</div>
+                </div>
+                <div class="example-password" onclick="testPassword('CorrectHorseBatteryStaple!')">
+                    <div class="password">CorrectHorseBatteryStaple!</div>
+                    <div class="strength">HIGHLY SECURE</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-footer">
+            <p>🔐 CyberGuard Password Analyzer | Developed by <strong>Parag Patel</strong></p>
+            <p>⚠️ This tool analyzes password strength for educational purposes only</p>
+            <p>💻 Built with Python, HTML5, CSS3, and JavaScript</p>
+            <p>🔗 Connect with me: <a href="https://www.linkedin.com/in/parag-patel-9593742a7" target="_blank" style="color: #00ff41;">LinkedIn Profile</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Create animated background particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Create Matrix-style rain effect
+        function createMatrixRain() {
+            const matrixContainer = document.getElementById('matrixRain');
+            const characters = '01ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()';
+            
+            for (let i = 0; i < 20; i++) {
+                const column = document.createElement('div');
+                column.className = 'matrix-column';
+                column.style.left = Math.random() * 100 + '%';
+                column.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                column.style.animationDelay = Math.random() * 2 + 's';
+                
+                let text = '';
+                for (let j = 0; j < 20; j++) {
+                    text += characters[Math.floor(Math.random() * characters.length)] + '<br>';
+                }
+                column.innerHTML = text;
+                matrixContainer.appendChild(column);
+            }
+        }
+
+        // Create binary rain effect
+        function createBinaryRain() {
+            const binaryContainer = document.getElementById('binaryRain');
+            
+            for (let i = 0; i < 30; i++) {
+                const digit = document.createElement('div');
+                digit.className = 'binary-digit';
+                digit.textContent = Math.random() > 0.5 ? '1' : '0';
+                digit.style.left = Math.random() * 100 + '%';
+                digit.style.animationDuration = (Math.random() * 4 + 3) + 's';
+                digit.style.animationDelay = Math.random() * 2 + 's';
+                binaryContainer.appendChild(digit);
+            }
+        }
+
+        // Add terminal typing effect
+        function typeTerminalLine(element, text, delay = 100) {
+            let i = 0;
+            element.textContent = '';
+            const interval = setInterval(() => {
+                element.textContent += text[i];
+                i++;
+                if (i >= text.length) {
+                    clearInterval(interval);
+                }
+            }, delay);
+        }
+
+        // Initialize all animations when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            createMatrixRain();
+            createBinaryRain();
+            
+            // Add typing effect to terminal lines
+            const terminalLines = document.querySelectorAll('.terminal-line');
+            terminalLines.forEach((line, index) => {
+                const text = line.textContent;
+                setTimeout(() => {
+                    typeTerminalLine(line, text, 50);
+                }, index * 1000);
+            });
+        });
+
+        // Password strength checker logic
+        class PasswordStrengthChecker {
+            constructor() {
+                this.minLength = 8;
+                this.strongLength = 12;
+                this.specialChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+                this.commonPasswords = [
+                    'password', '123456', 'admin', 'qwerty',
+                    'letmein', 'welcome', 'monkey', '1234567890', 'abc123',
+                    'password1', '12345', 'dragon', 'master', 'hello'
+                ];
+            }
+
+            checkPasswordStrength(password) {
+                if (!password) {
+                    return this.createEmptyResult();
+                }
+
+                const analysis = {
+                    password: password,
+                    length: password.length,
+                    strengthLevel: '',
+                    score: 0,
+                    maxScore: 100,
+                    checks: {},
+                    suggestions: [],
+                    isStrong: false
+                };
+
+                // Perform all checks
+                const lengthCheck = this.checkLength(password);
+                const charTypeCheck = this.checkCharacterTypes(password);
+                const complexityCheck = this.checkComplexity(password);
+                const patternCheck = this.checkPatterns(password);
+                const entropyCheck = this.checkEntropy(password);
+
+                analysis.checks = {
+                    length: lengthCheck,
+                    characterTypes: charTypeCheck,
+                    complexity: complexityCheck,
+                    patterns: patternCheck,
+                    entropy: entropyCheck
+                };
+
+                // Calculate overall score
+                let totalScore = (
+                    lengthCheck.score +
+                    charTypeCheck.score +
+                    complexityCheck.score +
+                    patternCheck.score +
+                    entropyCheck.score
+                );
+
+                // Apply penalties for common passwords
+                const patternIssues = patternCheck.issues || [];
+                if (patternCheck.score === 0 && patternIssues.some(issue => issue.includes('very common password'))) {
+                    totalScore = Math.min(totalScore, 10);
+                } else if (patternCheck.score === 0 && patternIssues.some(issue => issue.includes('common patterns'))) {
+                    totalScore = Math.min(totalScore, 20);
+                }
+
+                analysis.score = Math.min(totalScore, 100);
+
+                // Determine strength level
+                if (analysis.score >= 80) {
+                    analysis.strengthLevel = "Very Strong";
+                    analysis.isStrong = true;
+                } else if (analysis.score >= 60) {
+                    analysis.strengthLevel = "Strong";
+                    analysis.isStrong = true;
+                } else if (analysis.score >= 40) {
+                    analysis.strengthLevel = "Moderate";
+                } else if (analysis.score >= 20) {
+                    analysis.strengthLevel = "Weak";
+                } else {
+                    analysis.strengthLevel = "Very Weak";
+                }
+
+                analysis.suggestions = this.generateSuggestions(analysis);
+                return analysis;
+            }
+
+            checkLength(password) {
+                const length = password.length;
+                let score = 0;
+                const issues = [];
+
+                if (length < this.minLength) {
+                    score = 0;
+                    issues.push(`Password too short (minimum ${this.minLength} characters)`);
+                } else if (length < this.strongLength) {
+                    score = 20;
+                    issues.push(`Consider using at least ${this.strongLength} characters`);
+                } else {
+                    score = 30;
+                }
+
+                if (length >= 16) {
+                    score += 10;
+                }
+
+                return {
+                    score: score,
+                    length: length,
+                    minLength: this.minLength,
+                    strongLength: this.strongLength,
+                    issues: issues,
+                    passed: length >= this.minLength
+                };
+            }
+
+            checkCharacterTypes(password) {
+                const hasUpper = /[A-Z]/.test(password);
+                const hasLower = /[a-z]/.test(password);
+                const hasDigit = /\d/.test(password);
+                const hasSpecial = new RegExp(`[${this.specialChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`).test(password);
+
+                let score = 0;
+                const issues = [];
+                const typesFound = [];
+
+                if (password.length >= this.minLength) {
+                    if (hasUpper) {
+                        score += 10;
+                        typesFound.push('uppercase');
+                    } else {
+                        issues.push("Add uppercase letters");
+                    }
+
+                    if (hasLower) {
+                        score += 10;
+                        typesFound.push('lowercase');
+                    } else {
+                        issues.push("Add lowercase letters");
+                    }
+
+                    if (hasDigit) {
+                        score += 10;
+                        typesFound.push('digits');
+                    } else {
+                        issues.push("Add numbers");
+                    }
+
+                    if (hasSpecial) {
+                        score += 10;
+                        typesFound.push('special');
+                    } else {
+                        issues.push("Add special characters");
+                    }
+                } else {
+                    if (hasUpper) typesFound.push('uppercase');
+                    else issues.push("Add uppercase letters");
+                    if (hasLower) typesFound.push('lowercase');
+                    else issues.push("Add lowercase letters");
+                    if (hasDigit) typesFound.push('digits');
+                    else issues.push("Add numbers");
+                    if (hasSpecial) typesFound.push('special');
+                    else issues.push("Add special characters");
+                }
+
+                return {
+                    score: score,
+                    typesFound: typesFound,
+                    hasUpper: hasUpper,
+                    hasLower: hasLower,
+                    hasDigit: hasDigit,
+                    hasSpecial: hasSpecial,
+                    issues: issues,
+                    passed: typesFound.length >= 3 && password.length >= this.minLength
+                };
+            }
+
+            checkComplexity(password) {
+                let score = 0;
+                const issues = [];
+
+                if (password.length < this.minLength) {
+                    return {
+                        score: 0,
+                        issues: ["Password too short for complexity analysis"],
+                        passed: false
+                    };
+                }
+
+                // Check for repeated characters
+                const uniqueChars = new Set(password).size;
+                if (uniqueChars < password.length * 0.6) {
+                    issues.push("Too many repeated characters");
+                } else {
+                    score += 10;
+                }
+
+                // Check for sequential patterns
+                if (this.hasSequentialPattern(password)) {
+                    issues.push("Avoid sequential patterns (123, abc)");
+                    score -= 5;
+                } else {
+                    score += 10;
+                }
+
+                // Check for keyboard patterns
+                if (this.hasKeyboardPattern(password)) {
+                    issues.push("Avoid keyboard patterns (qwerty, asdf)");
+                    score -= 5;
+                } else {
+                    score += 10;
+                }
+
+                // Check for common substitutions
+                if (this.hasCommonSubstitutions(password)) {
+                    issues.push("Avoid common substitutions (0 for O, 1 for l)");
+                    score -= 5;
+                } else {
+                    score += 5;
+                }
+
+                return {
+                    score: Math.max(score, 0),
+                    issues: issues,
+                    passed: score >= 15
+                };
+            }
+
+            checkPatterns(password) {
+                let score = 20;
+                const issues = [];
+                const passwordLower = password.toLowerCase();
+
+                if (this.commonPasswords.includes(passwordLower)) {
+                    score = 0;
+                    issues.push("This is a very common password");
+                } else if (this.commonPasswords.some(common => passwordLower.includes(common))) {
+                    const commonFound = this.commonPasswords.filter(common => passwordLower.includes(common));
+                    const longestCommon = commonFound.reduce((a, b) => a.length > b.length ? a : b);
+                    if (longestCommon.length >= password.length * 0.9) {
+                        score = 0;
+                        issues.push("Password contains common patterns");
+                    } else {
+                        score = 10;
+                        issues.push("Password contains some common patterns");
+                    }
+                }
+
+                if (password.length < 6) {
+                    score = Math.max(score - 10, 0);
+                    issues.push("Password is too short");
+                }
+
+                return {
+                    score: Math.max(score, 0),
+                    issues: issues,
+                    passed: score >= 15
+                };
+            }
+
+            checkEntropy(password) {
+                let charSets = 0;
+
+                if (/[a-z]/.test(password)) charSets += 26;
+                if (/[A-Z]/.test(password)) charSets += 26;
+                if (/\d/.test(password)) charSets += 10;
+                if (new RegExp(`[${this.specialChars.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}]`).test(password)) {
+                    charSets += this.specialChars.length;
+                }
+
+                const entropy = password.length * Math.sqrt(charSets);
+
+                let score = 0;
+                const issues = [];
+
+                if (entropy >= 50) {
+                    score = 20;
+                } else if (entropy >= 30) {
+                    score = 15;
+                } else if (entropy >= 20) {
+                    score = 10;
+                } else {
+                    score = 5;
+                    issues.push("Password has low entropy - use more diverse characters");
+                }
+
+                return {
+                    score: score,
+                    entropy: entropy,
+                    issues: issues,
+                    passed: entropy >= 30
+                };
+            }
+
+            hasSequentialPattern(password) {
+                const sequences = ['123', '234', '345', '456', '567', '678', '789',
+                                 'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi',
+                                 'qwe', 'wer', 'ert', 'rty', 'tyu', 'yui', 'uio'];
+                const passwordLower = password.toLowerCase();
+                return sequences.some(seq => passwordLower.includes(seq));
+            }
+
+            hasKeyboardPattern(password) {
+                const keyboardPatterns = ['qwerty', 'asdf', 'zxcv', 'qwertyuiop',
+                                        'asdfghjkl', 'zxcvbnm'];
+                const passwordLower = password.toLowerCase();
+                return keyboardPatterns.some(pattern => passwordLower.includes(pattern));
+            }
+
+            hasCommonSubstitutions(password) {
+                const substitutions = {
+                    '0': 'o', '1': 'l', '3': 'e', '4': 'a', '5': 's',
+                    '6': 'g', '7': 't', '8': 'b', '@': 'a', '$': 's'
+                };
+                const passwordLower = password.toLowerCase();
+                return Object.entries(substitutions).some(([digit, letter]) => 
+                    password.includes(digit) && passwordLower.includes(letter));
+            }
+
+            generateSuggestions(analysis) {
+                const suggestions = [];
+                const checks = analysis.checks;
+
+                if (checks.length.score < 30) {
+                    suggestions.push(`Use at least ${this.strongLength} characters`);
+                }
+
+                const charCheck = checks.characterTypes;
+                if (!charCheck.hasUpper) suggestions.push("Include uppercase letters (A-Z)");
+                if (!charCheck.hasLower) suggestions.push("Include lowercase letters (a-z)");
+                if (!charCheck.hasDigit) suggestions.push("Include numbers (0-9)");
+                if (!charCheck.hasSpecial) suggestions.push("Include special characters (!@#$%^&*)");
+
+                suggestions.push(...checks.complexity.issues);
+                suggestions.push(...checks.patterns.issues);
+
+                if (analysis.score < 60) {
+                    suggestions.push("Consider using a passphrase with random words");
+                    suggestions.push("Avoid dictionary words and common patterns");
+                }
+
+                return suggestions.slice(0, 5);
+            }
+
+            createEmptyResult() {
+                return {
+                    password: '',
+                    length: 0,
+                    strengthLevel: 'Enter a password',
+                    score: 0,
+                    maxScore: 100,
+                    checks: {},
+                    suggestions: [],
+                    isStrong: false
+                };
+            }
+        }
+
+        // Initialize the password checker
+        const checker = new PasswordStrengthChecker();
+
+        // DOM elements
+        const passwordInput = document.getElementById('passwordInput');
+        const strengthText = document.getElementById('strengthText');
+        const strengthScore = document.getElementById('strengthScore');
+        const meterFill = document.getElementById('meterFill');
+        const analysisGrid = document.getElementById('analysisGrid');
+        const suggestions = document.getElementById('suggestions');
+        const suggestionsList = document.getElementById('suggestionsList');
+
+        // Event listeners
+        passwordInput.addEventListener('input', updatePasswordAnalysis);
+
+        function updatePasswordAnalysis() {
+            const password = passwordInput.value;
+            const result = checker.checkPasswordStrength(password);
+
+            // Update strength display
+            strengthText.textContent = result.strengthLevel;
+            strengthScore.textContent = `${result.score}/100`;
+
+            // Update meter
+            meterFill.className = 'meter-fill';
+            if (result.score > 0) {
+                const strengthClass = result.strengthLevel.toLowerCase().replace(' ', '-');
+                meterFill.classList.add(strengthClass);
+            }
+
+            // Update analysis cards
+            updateAnalysisCards(result);
+
+            // Update suggestions
+            updateSuggestions(result);
+        }
+
+        function updateAnalysisCards(result) {
+            const checks = result.checks;
+            if (!checks || Object.keys(checks).length === 0) {
+                analysisGrid.innerHTML = '<p style="text-align: center; color: #666;">Enter a password to see analysis</p>';
+                return;
+            }
+
+            const cards = [
+                {
+                    title: 'Length Analysis',
+                    check: checks.length,
+                    icon: '📏',
+                    description: 'Password length security check'
+                },
+                {
+                    title: 'Character Types',
+                    check: checks.characterTypes,
+                    icon: '🔤',
+                    description: 'Character diversity analysis'
+                },
+                {
+                    title: 'Complexity Check',
+                    check: checks.complexity,
+                    icon: '🧩',
+                    description: 'Pattern and complexity analysis'
+                },
+                {
+                    title: 'Security Patterns',
+                    check: checks.patterns,
+                    icon: '🛡️',
+                    description: 'Common password detection'
+                },
+                {
+                    title: 'Entropy Analysis',
+                    check: checks.entropy,
+                    icon: '🎲',
+                    description: 'Randomness and unpredictability'
+                }
+            ];
+
+            analysisGrid.innerHTML = cards.map((card, index) => {
+                const status = card.check.passed ? 'passed' : 'failed';
+                const statusIcon = card.check.passed ? '✅' : '❌';
+                
+                let details = '';
+                if (card.title === 'Character Types' && card.check.typesFound) {
+                    details = `
+                        <div class="character-types">
+                            <div class="char-type">
+                                <span class="${card.check.hasUpper ? 'check' : 'cross'}">${card.check.hasUpper ? '✓' : '✗'}</span>
+                                Uppercase
+                            </div>
+                            <div class="char-type">
+                                <span class="${card.check.hasLower ? 'check' : 'cross'}">${card.check.hasLower ? '✓' : '✗'}</span>
+                                Lowercase
+                            </div>
+                            <div class="char-type">
+                                <span class="${card.check.hasDigit ? 'check' : 'cross'}">${card.check.hasDigit ? '✓' : '✗'}</span>
+                                Numbers
+                            </div>
+                            <div class="char-type">
+                                <span class="${card.check.hasSpecial ? 'check' : 'cross'}">${card.check.hasSpecial ? '✓' : '✗'}</span>
+                                Special
+                            </div>
+                        </div>
+                    `;
+                } else if (card.check.issues && card.check.issues.length > 0) {
+                    details = card.check.issues.join(', ');
+                }
+
+                return `
+                    <div class="analysis-card ${status} security-scan" style="animation-delay: ${index * 0.2}s">
+                        <h3>
+                            <span class="icon">${card.icon}</span>
+                            ${card.title}
+                            <span>${statusIcon}</span>
+                        </h3>
+                        <div class="score">${card.check.score} points</div>
+                        <div class="details">${details}</div>
+                        <div style="font-size: 0.8em; color: #666; margin-top: 10px;">${card.description}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSuggestions(result) {
+            if (result.suggestions && result.suggestions.length > 0) {
+                suggestions.style.display = 'block';
+                suggestionsList.innerHTML = result.suggestions.map(suggestion => 
+                    `<li>${suggestion}</li>`
+                ).join('');
+            } else {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const input = passwordInput;
+            const button = document.querySelector('.toggle-visibility');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        function testPassword(password) {
+            passwordInput.value = password;
+            updatePasswordAnalysis();
+        }
+
+        // Initialize with empty state
+        updatePasswordAnalysis();
+    </script>
+</body>
+</html>
